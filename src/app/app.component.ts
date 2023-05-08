@@ -1,14 +1,59 @@
-import { Component } from '@angular/core';
+import { Component, Signal, signal, effect, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
+import { ChildComponent } from './child/child.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet],
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  template: `
+    <h3>{{ data() | json }}</h3>
+    <h4>{{ title() }}</h4>
+    <h4>{{ name() }}</h4>
+    <h5>{{ age() }}</h5>
+    <h5>{{ bar() }}</h5>
+    <input type="text" #input />
+    <button (click)="setName(input.value)">Save</button>
+    <app-child [name]="bar"></app-child>
+  `,
+  imports: [CommonModule, RouterOutlet, ChildComponent],
 })
 export class AppComponent {
-  title = 'SignalStress';
+  bar = signal('BAR');
+  data = signal({ title: 'Signal stress Test', name: 'Hurbelwonz', age: 7 });
+
+  title = computed(() => this.data().title);
+  name = computed(() => this.data().name);
+  age = computed(() =>
+    this.data().name.includes('Ö') ? this.data().age + 1 : this.data().age
+  );
+  foo = effect(() => {
+    console.log(this.name());
+    if (this.name().includes('Ö')) {
+      alert('Ö wie schön!');
+    }
+  }, {});
+
+  setAge(a: number) {
+    const newValue = this.data();
+    if (newValue.age !== a) {
+      console.log('Arrgh', a);
+      newValue.age = a;
+      // this.data.mutate(() => newValue);
+    }
+  }
+
+  setName(v: string) {
+    const newValue = this.data();
+    if (v.includes('Ö')) {
+      newValue.age++;
+    }
+    this.data.mutate(() => newValue);
+    //       const age = this.age() + 1;
+    //       this.setAge(age);
+    //     }
+    console.log('SetNAme', v);
+
+    newValue.name = v;
+  }
 }
