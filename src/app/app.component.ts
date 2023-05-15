@@ -2,6 +2,7 @@ import { Component, Signal, signal, effect, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { ChildComponent } from './child/child.component';
+import { interval, map, tap } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -56,4 +57,11 @@ export class AppComponent {
 
     newValue.name = v;
   }
+
+  foo$ = interval(1500)
+    .pipe(
+      map((data) => 'index: ' + data),
+      tap((data) => console.log(data))
+    )
+    .subscribe();
 }
